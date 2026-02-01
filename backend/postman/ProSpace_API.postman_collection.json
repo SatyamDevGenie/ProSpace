@@ -1,0 +1,323 @@
+{
+	"info": {
+		"_postman_id": "prospace-api-collection",
+		"name": "ProSpace API",
+		"description": "Complete API collection for ProSpace - Hybrid Office Desk Booking System\n\n**Base URL:** http://localhost:5000\n\n**Auth:** JWT in HttpOnly cookie. Login once → Postman auto-sends cookie for protected routes.\n\n**Seeder users:**\n- Admin: satyam@gmail.com / satyam123\n- User: aftab@gmail.com / aftab123\n\n**Test order:** 1→2→3 (Health→Register→Login) then any protected API.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "base_url", "value": "http://localhost:5000" },
+		{ "key": "desk_id", "value": "" },
+		{ "key": "booking_id", "value": "" },
+		{ "key": "user_id", "value": "" }
+	],
+	"item": [
+		{
+			"name": "01 - Health",
+			"item": [
+				{
+					"name": "01. GET Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/health", "host": ["{{base_url}}"], "path": ["api", "health"] },
+						"description": "**GET** /api/health\n\nCheck if backend is running. No auth required."
+					}
+				}
+			]
+		},
+		{
+			"name": "02 - Auth (Public)",
+			"item": [
+				{
+					"name": "02. POST Register",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New User\",\n  \"email\": \"newuser@example.com\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/auth/register", "host": ["{{base_url}}"], "path": ["api", "auth", "register"] },
+						"description": "**POST** /api/auth/register\n\nRegister new user. Role defaults to USER. No auth required.\n\n**Body:** name, email, password"
+					}
+				},
+				{
+					"name": "03. POST Login (User - Aftab)",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"pm.test('Status 200', () => pm.response.to.have.status(200));",
+								"if (pm.response.code === 200 && pm.cookies.toObject().token) {",
+								"  pm.collectionVariables.set('user_id', pm.response.json().user?.id || '');",
+								"}"
+							],
+							"type": "text/javascript"
+						}
+					}],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"aftab@gmail.com\",\n  \"password\": \"aftab123\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] },
+						"description": "**POST** /api/auth/login\n\nLogin as User (Aftab). JWT stored in HttpOnly cookie. Use for User endpoints."
+					}
+				},
+				{
+					"name": "04. POST Login (Admin - Satyam)",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"pm.test('Status 200', () => pm.response.to.have.status(200));"
+							],
+							"type": "text/javascript"
+						}
+					}],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"satyam@gmail.com\",\n  \"password\": \"satyam123\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/auth/login", "host": ["{{base_url}}"], "path": ["api", "auth", "login"] },
+						"description": "**POST** /api/auth/login\n\nLogin as Admin (Satyam). JWT in cookie. Use for Admin endpoints."
+					}
+				},
+				{
+					"name": "05. POST Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/auth/logout", "host": ["{{base_url}}"], "path": ["api", "auth", "logout"] },
+						"description": "**POST** /api/auth/logout\n\nClear auth cookie. Auth required."
+					}
+				}
+			]
+		},
+		{
+			"name": "03 - User (Auth Required)",
+			"item": [
+				{
+					"name": "06. GET My Profile",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/users/me", "host": ["{{base_url}}"], "path": ["api", "users", "me"] },
+						"description": "**GET** /api/users/me\n\nGet logged-in user profile (excludes password). Auth required."
+					}
+				},
+				{
+					"name": "07. GET My Bookings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/users/me/bookings", "host": ["{{base_url}}"], "path": ["api", "users", "me", "bookings"] },
+						"description": "**GET** /api/users/me/bookings\n\nGet own booking history. Auth required."
+					}
+				},
+				{
+					"name": "08. PATCH Update My Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deskId\": \"{{desk_id}}\",\n  \"date\": \"2026-02-20\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/users/me/bookings/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "users", "me", "bookings", "{{booking_id}}"] },
+						"description": "**PATCH** /api/users/me/bookings/:bookingId\n\nUpdate own PENDING booking. Auth required.\n\n**Body:** deskId, date"
+					}
+				},
+				{
+					"name": "09. GET Admin - User Bookings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/users/admin/{{user_id}}/bookings", "host": ["{{base_url}}"], "path": ["api", "users", "admin", "{{user_id}}", "bookings"] },
+						"description": "**GET** /api/users/admin/:userId/bookings\n\nGet booking history for any user. Admin only.\n\n**Params:** userId (MongoDB ObjectId)"
+					}
+				}
+			]
+		},
+		{
+			"name": "04 - Desks (Auth Required)",
+			"item": [
+				{
+					"name": "10. GET All Desks",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"pm.test('Status 200', () => pm.response.to.have.status(200));",
+								"const data = pm.response.json();",
+								"if (Array.isArray(data) && data.length > 0) {",
+								"  pm.collectionVariables.set('desk_id', data[0]._id);",
+								"}"
+							],
+							"type": "text/javascript"
+						}
+					}],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/desks", "host": ["{{base_url}}"], "path": ["api", "desks"] },
+						"description": "**GET** /api/desks\n\nGet all desks. User & Admin. Auto-saves first desk_id."
+					}
+				},
+				{
+					"name": "11. GET Desk By ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/desks/{{desk_id}}", "host": ["{{base_url}}"], "path": ["api", "desks", "{{desk_id}}"] },
+						"description": "**GET** /api/desks/:id\n\nGet single desk by ID. Auth required."
+					}
+				},
+				{
+					"name": "12. POST Create Desk",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deskNumber\": \"D-101\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/desks", "host": ["{{base_url}}"], "path": ["api", "desks"] },
+						"description": "**POST** /api/desks\n\nCreate new desk. Admin only.\n\n**Body:** deskNumber"
+					}
+				},
+				{
+					"name": "13. PUT Update Desk",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deskNumber\": \"D-102\",\n  \"isActive\": true\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/desks/{{desk_id}}", "host": ["{{base_url}}"], "path": ["api", "desks", "{{desk_id}}"] },
+						"description": "**PUT** /api/desks/:id\n\nUpdate desk. Admin only.\n\n**Body:** deskNumber?, isActive?"
+					}
+				},
+				{
+					"name": "14. DELETE Desk",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/desks/{{desk_id}}", "host": ["{{base_url}}"], "path": ["api", "desks", "{{desk_id}}"] },
+						"description": "**DELETE** /api/desks/:id\n\nDelete desk. Admin only."
+					}
+				}
+			]
+		},
+		{
+			"name": "05 - Bookings (User)",
+			"item": [
+				{
+					"name": "15. POST Create Booking",
+					"event": [{
+						"listen": "test",
+						"script": {
+							"exec": [
+								"pm.test('Status 201', () => pm.response.to.have.status(201));",
+								"if (pm.response.code === 201) {",
+								"  const res = pm.response.json();",
+								"  pm.collectionVariables.set('booking_id', res._id);",
+								"}"
+							],
+							"type": "text/javascript"
+						}
+					}],
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deskId\": \"{{desk_id}}\",\n  \"date\": \"2026-02-15\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/bookings", "host": ["{{base_url}}"], "path": ["api", "bookings"] },
+						"description": "**POST** /api/bookings\n\nCreate booking. Auth required. Run GET All Desks first for deskId.\n\n**Body:** deskId, date (YYYY-MM-DD)"
+					}
+				},
+				{
+					"name": "16. GET My Booking History",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/me/history", "host": ["{{base_url}}"], "path": ["api", "bookings", "me", "history"] },
+						"description": "**GET** /api/bookings/me/history\n\nGet own booking history. Auth required."
+					}
+				},
+				{
+					"name": "17. PATCH Update My Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"deskId\": \"{{desk_id}}\",\n  \"date\": \"2026-02-16\"\n}"
+						},
+						"url": { "raw": "{{base_url}}/api/bookings/me/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "bookings", "me", "{{booking_id}}"] },
+						"description": "**PATCH** /api/bookings/me/:id\n\nUpdate own PENDING booking. Auth required.\n\n**Body:** deskId, date"
+					}
+				},
+				{
+					"name": "18. DELETE Cancel My Booking",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/me/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "bookings", "me", "{{booking_id}}"] },
+						"description": "**DELETE** /api/bookings/me/:id\n\nCancel own booking. Auth required."
+					}
+				}
+			]
+		},
+		{
+			"name": "06 - Bookings (Admin)",
+			"item": [
+				{
+					"name": "19. GET All Bookings",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/admin/all", "host": ["{{base_url}}"], "path": ["api", "bookings", "admin", "all"] },
+						"description": "**GET** /api/bookings/admin/all\n\nGet all users' bookings. Admin only."
+					}
+				},
+				{
+					"name": "20. PATCH Approve Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/admin/approve/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "bookings", "admin", "approve", "{{booking_id}}"] },
+						"description": "**PATCH** /api/bookings/admin/approve/:id\n\nApprove PENDING booking. Admin only."
+					}
+				},
+				{
+					"name": "21. PATCH Reject Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/admin/reject/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "bookings", "admin", "reject", "{{booking_id}}"] },
+						"description": "**PATCH** /api/bookings/admin/reject/:id\n\nReject PENDING booking. Admin only."
+					}
+				},
+				{
+					"name": "22. PATCH Admin Cancel Booking",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"url": { "raw": "{{base_url}}/api/bookings/admin/cancel/{{booking_id}}", "host": ["{{base_url}}"], "path": ["api", "bookings", "admin", "cancel", "{{booking_id}}"] },
+						"description": "**PATCH** /api/bookings/admin/cancel/:id\n\nAdmin cancel any booking. Admin only."
+					}
+				}
+			]
+		}
+	]
+}
