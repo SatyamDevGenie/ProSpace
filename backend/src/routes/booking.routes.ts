@@ -15,7 +15,7 @@ import { isAdmin } from "../middlewares/role.middleware";
 
 const router = Router();
 
-router.post("/", protect, createBooking);
+router.post("/create", protect, createBooking);
 router.get("/me/history", protect, myBookingHistory);
 router.patch("/me/:id", protect, updateMyBooking);
 router.delete("/me/:id", protect, cancelMyBooking);

@@ -42,6 +42,33 @@ export const cancelMyBooking = async (req: any, res: Response) => {
     res.json(booking);
 };
 
+const VALID_STATUSES = ["PENDING", "APPROVED"] as const;
+
+export const adminCreateBooking = async (req: Request, res: Response) => {
+    const { userId, deskId, date, status } = req.body ?? {};
+
+    if (!userId || !deskId || !date) {
+        return res.status(400).json({
+            message: "userId, deskId and date are required"
+        });
+    }
+
+    const bookingStatus = status && VALID_STATUSES.includes(status) ? status : "PENDING";
+
+    const booking = await Booking.create({
+        user: userId,
+        desk: deskId,
+        date,
+        status: bookingStatus
+    });
+
+    const populated = await Booking.findById(booking._id)
+        .populate("user", "name email")
+        .populate("desk");
+
+    res.status(201).json(populated);
+};
+
 export const adminAllBookings = async (_: Request, res: Response) => {
     const bookings = await Booking.find()
         .populate("user")
