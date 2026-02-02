@@ -89,7 +89,7 @@ npm run seed
 ```
 
 Creates:
-- **Admin:** satyam@gmail.com / satyam123
+- **Admin:** satyamsawant54@gmail.com / satyam123
 - **User:** aftab@gmail.com / aftab123
 
 ### 4. Run Application
