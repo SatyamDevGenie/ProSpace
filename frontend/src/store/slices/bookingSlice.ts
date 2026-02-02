@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { bookingService } from "@/services/bookingService";
 import { userService } from "@/services/userService";
 import type {
@@ -162,6 +163,7 @@ const bookingSlice = createSlice({
         state.isLoading = false;
         state.myBookings.unshift(action.payload);
         state.bookings.unshift(action.payload);
+        toast.success("Booking created! Awaiting approval.");
       })
       .addCase(fetchMyBookings.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -177,11 +179,13 @@ const bookingSlice = createSlice({
         if (idx !== -1) state.myBookings[idx] = action.payload;
         const aidx = state.bookings.findIndex((b: IBooking) => b._id === action.payload._id);
         if (aidx !== -1) state.bookings[aidx] = action.payload;
+        toast.success("Booking updated successfully.");
       })
       .addCase(cancelBooking.fulfilled, (state, action) => {
         state.isLoading = false;
         const idx = state.myBookings.findIndex((b: IBooking) => b._id === action.payload._id);
         if (idx !== -1) state.myBookings[idx] = action.payload;
+        toast.success("Booking cancelled.");
       })
       .addCase(fetchAllBookings.fulfilled, (state, action) => {
         state.isLoading = false;
@@ -190,26 +194,60 @@ const bookingSlice = createSlice({
       .addCase(adminCreateBooking.fulfilled, (state, action) => {
         state.isLoading = false;
         state.bookings.unshift(action.payload);
+        toast.success("Booking created for user.");
       })
       .addCase(approveBooking.fulfilled, (state, action) => {
         const idx = state.bookings.findIndex((b: IBooking) => b._id === action.payload._id);
         if (idx !== -1) state.bookings[idx] = action.payload;
+        toast.success("Booking approved.");
       })
       .addCase(rejectBooking.fulfilled, (state, action) => {
         const idx = state.bookings.findIndex((b: IBooking) => b._id === action.payload._id);
         if (idx !== -1) state.bookings[idx] = action.payload;
+        toast.success("Booking rejected.");
       })
       .addCase(adminCancelBooking.fulfilled, (state, action) => {
         const idx = state.bookings.findIndex((b: IBooking) => b._id === action.payload._id);
         if (idx !== -1) state.bookings[idx] = action.payload;
+        toast.success("Booking cancelled by admin.");
       })
-      .addCase(createBooking.rejected, setRejected)
-      .addCase(fetchMyBookings.rejected, setRejected)
-      .addCase(fetchBookingHistory.rejected, setRejected)
-      .addCase(updateBooking.rejected, setRejected)
-      .addCase(cancelBooking.rejected, setRejected)
-      .addCase(fetchAllBookings.rejected, setRejected)
-      .addCase(adminCreateBooking.rejected, setRejected);
+      .addCase(createBooking.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to create booking");
+      })
+      .addCase(fetchMyBookings.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to load bookings");
+      })
+      .addCase(fetchBookingHistory.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to load booking history");
+      })
+      .addCase(updateBooking.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to update booking");
+      })
+      .addCase(cancelBooking.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to cancel booking");
+      })
+      .addCase(fetchAllBookings.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to load bookings");
+      })
+      .addCase(adminCreateBooking.rejected, (state, action) => {
+        setRejected(state, action);
+        toast.error(action.payload ?? "Failed to create booking");
+      })
+      .addCase(approveBooking.rejected, (_, action) => {
+        toast.error(action.payload ?? "Failed to approve booking");
+      })
+      .addCase(rejectBooking.rejected, (_, action) => {
+        toast.error(action.payload ?? "Failed to reject booking");
+      })
+      .addCase(adminCancelBooking.rejected, (_, action) => {
+        toast.error(action.payload ?? "Failed to cancel booking");
+      });
   },
 });
 

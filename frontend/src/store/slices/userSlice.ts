@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { userService } from "@/services/userService";
 import type { UserState, IUser } from "@/types";
 
@@ -40,6 +41,7 @@ const userSlice = createSlice({
       .addCase(fetchProfile.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? "Failed to fetch profile";
+        toast.error(action.payload ?? "Failed to load profile");
       });
   },
 });

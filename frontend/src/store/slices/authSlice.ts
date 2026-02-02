@@ -1,4 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { toast } from "react-toastify";
 import { authService } from "@/services/authService";
 import type { AuthState, LoginCredentials, RegisterCredentials, AuthUser } from "@/types";
 
@@ -88,10 +89,12 @@ const authSlice = createSlice({
         state.token = action.payload.token ?? state.token;
         state.isAuthenticated = true;
         state.error = null;
+        toast.success("Welcome back! Login successful.");
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? "Login failed";
+        toast.error(action.payload ?? "Login failed");
       })
       // Register
       .addCase(register.pending, (state) => {
@@ -101,16 +104,19 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state) => {
         state.isLoading = false;
         state.error = null;
+        toast.success("Account created! Please sign in.");
       })
       .addCase(register.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? "Registration failed";
+        toast.error(action.payload ?? "Registration failed");
       })
       // Logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
+        toast.info("You have been logged out.");
       })
       // Fetch profile
       .addCase(fetchProfile.fulfilled, (state, action) => {
@@ -121,12 +127,14 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         localStorage.removeItem("token");
+        toast.error("Session expired. Please sign in again.");
       })
       .addCase(logout.rejected, (state) => {
         state.user = null;
         state.token = null;
         state.isAuthenticated = false;
         localStorage.removeItem("token");
+        toast.error("Logout failed, but you have been signed out.");
       });
   },
 });
