@@ -32,7 +32,7 @@ export default function Dashboard() {
         className="rounded-xl bg-gradient-to-r from-primary-600 to-primary-700 p-6 text-white shadow-lg"
       >
         <h1 className="text-2xl font-bold sm:text-3xl">
-          Hello, {user?.name?.split(" ")[0] ?? "User"}!
+          Hello, {user?.name?.split("") ?? "User"} !
         </h1>
         <p className="mt-2 text-primary-100">
           {isAdmin ? "Manage desks and bookings from your admin panel." : "Book a desk for your next workday."}

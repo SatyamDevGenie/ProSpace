@@ -59,7 +59,8 @@ export const updateMyBooking = async (req: any, res: Response) => {
     }
 
     // Prevent past date updates
-    if (new Date(date) < new Date()) {
+    const today = new Date().toISOString().split("T")[0];
+    if (date < today) {
         return res.status(400).json({
             message: "Cannot update booking to past date"
         });

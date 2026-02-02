@@ -53,6 +53,18 @@ export const updateMyBooking = async (req: any, res: Response) => {
     if (!desk.isActive)
         return res.status(400).json({ message: "Desk is not available" });
 
+    const today = new Date().toISOString().split("T")[0];
+    if (date < today)
+        return res.status(400).json({ message: "Cannot update booking to past date" });
+
+    const exists = await Booking.findOne({
+        user: req.user.id,
+        date,
+        _id: { $ne: req.params.id }
+    });
+    if (exists)
+        return res.status(400).json({ message: "You already have a booking for this date" });
+
     booking.desk = deskId;
     booking.date = date;
     await booking.save();
@@ -66,6 +78,11 @@ export const cancelMyBooking = async (req: any, res: Response) => {
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     if (booking.user.toString() !== req.user.id)
         return res.status(403).json({ message: "Not your booking" });
+    if (!["PENDING", "APPROVED"].includes(booking.status))
+        return res.status(400).json({ message: "Cannot cancel - booking is already rejected or cancelled" });
+    const today = new Date().toISOString().split("T")[0];
+    if (booking.date < today)
+        return res.status(400).json({ message: "Cannot cancel - booking date has passed" });
     booking.status = "CANCELLED";
     await booking.save();
     const populated = await Booking.findById(booking._id).populate("desk");

@@ -53,8 +53,9 @@ export default function MyBookings() {
 
   const startEdit = (b: IBooking) => {
     const desk = b.desk;
+    const deskId = typeof desk === "object" && desk ? (desk as { _id: string })._id : desks[0]?._id ?? "";
     setEditingId(b._id);
-    setEditDeskId(typeof desk === "object" && desk ? desk._id : "");
+    setEditDeskId(deskId);
     setEditDate(b.date);
   };
 
@@ -102,8 +103,10 @@ export default function MyBookings() {
                         value={editDeskId}
                         onChange={(e) => setEditDeskId(e.target.value)}
                         className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
+                        required
                       >
-                        {desks.map((d) => (
+                        <option value="">Select desk</option>
+                        {desks.filter((d) => d.isActive).map((d) => (
                           <option key={d._id} value={d._id}>{d.deskNumber}</option>
                         ))}
                       </select>
@@ -113,20 +116,28 @@ export default function MyBookings() {
                         onChange={(e) => setEditDate(e.target.value)}
                         className="rounded-lg border border-slate-300 px-3 py-2 text-sm"
                       />
-                      <Button size="sm" onClick={() => handleUpdate(booking._id)}>Save</Button>
-                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel</Button>
+                      <Button size="sm" onClick={() => handleUpdate(booking._id)} disabled={!editDeskId || !editDate}>
+                        Save
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => setEditingId(null)}>Cancel Edit</Button>
                     </div>
-                  ) : (
-                    <div className="flex gap-2">
-                      {canUpdate(booking) && (
-                        <Button size="sm" variant="outline" onClick={() => startEdit(booking)}>
-                          Update
-                        </Button>
-                      )}
-                      {canUpdate(booking) && (
-                        <Button size="sm" variant="danger" onClick={() => handleCancel(booking._id)}>
-                          Cancel
-                        </Button>
+                    ) : (
+                    <div className="flex flex-wrap items-center gap-2">
+                      {canUpdate(booking) ? (
+                        <>
+                          <Button size="sm" variant="outline" onClick={() => startEdit(booking)}>
+                            Update Desk
+                          </Button>
+                          <Button size="sm" variant="danger" onClick={() => handleCancel(booking._id)}>
+                            Cancel Booking
+                          </Button>
+                        </>
+                      ) : (
+                        <span className="text-xs text-slate-500">
+                          {["REJECTED", "CANCELLED", "ADMIN_CANCELLED"].includes(booking.status)
+                            ? "Cannot update or cancel"
+                            : "Past date - cannot update or cancel"}
+                        </span>
                       )}
                     </div>
                   )}

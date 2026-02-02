@@ -74,12 +74,11 @@ export const updateBooking = createAsyncThunk<
   }
 });
 
-export const cancelBooking = createAsyncThunk<string, string, { rejectValue: string }>(
+export const cancelBooking = createAsyncThunk<IBooking, string, { rejectValue: string }>(
   "booking/cancel",
   async (id, { rejectWithValue }) => {
     try {
-      await bookingService.cancel(id);
-      return id;
+      return await bookingService.cancel(id);
     } catch (err: unknown) {
       return rejectWithValue((err as { message: string }).message);
     }
@@ -181,7 +180,8 @@ const bookingSlice = createSlice({
       })
       .addCase(cancelBooking.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.myBookings = state.myBookings.filter((b: IBooking) => b._id !== action.payload);
+        const idx = state.myBookings.findIndex((b: IBooking) => b._id === action.payload._id);
+        if (idx !== -1) state.myBookings[idx] = action.payload;
       })
       .addCase(fetchAllBookings.fulfilled, (state, action) => {
         state.isLoading = false;
