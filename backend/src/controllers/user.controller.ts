@@ -103,6 +103,12 @@ export const updateMyBooking = async (req: any, res: Response) => {
     }
 };
 
+/* ================= ADMIN: GET ALL USERS ================= */
+export const adminGetAllUsers = async (_req: Request, res: Response) => {
+    const users = await User.find().select("-password").sort({ createdAt: -1 });
+    res.json(users);
+};
+
 /* ================= ADMIN: USER BOOKING HISTORY ================= */
 export const adminGetUserBookings = async (req: Request, res: Response) => {
     const { userId } = req.params;

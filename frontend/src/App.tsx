@@ -12,6 +12,7 @@ import Desks from "./pages/Desks";
 import MyBookings from "./pages/MyBookings";
 import AdminDesks from "./pages/admin/AdminDesks";
 import AdminBookings from "./pages/admin/AdminBookings";
+import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import type { RootState } from "./store";
 
 function App() {
@@ -56,6 +57,14 @@ function App() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminBookings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/analytics"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminAnalytics />
               </ProtectedRoute>
             }
           />

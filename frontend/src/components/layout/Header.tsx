@@ -19,6 +19,7 @@ const navLinks = [
 const adminLinks = [
   { to: "/admin/desks", label: "Manage Desks" },
   { to: "/admin/bookings", label: "All Bookings" },
+  { to: "/admin/analytics", label: "User Analytics" },
 ];
 
 export function Header() {
@@ -76,7 +77,7 @@ export function Header() {
                     <UserIcon />
                   </div>
                   <span className="hidden max-w-32 truncate sm:inline">
-                    
+                    {user?.name}
                   </span>
                 </button>
                 <AnimatePresence>

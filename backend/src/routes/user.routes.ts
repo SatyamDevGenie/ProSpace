@@ -3,6 +3,7 @@ import {
     getMyProfile,
     getMyBookings,
     updateMyBooking,
+    adminGetAllUsers,
     adminGetUserBookings
 } from "../controllers/user.controller";
 
@@ -23,6 +24,9 @@ router.get("/me/bookings", protect, getMyBookings);
 router.patch("/me/bookings/:bookingId", protect, updateMyBooking);
 
 /* ================= ADMIN ================= */
+
+// Admin get all users (no passwords)
+router.get("/admin/all", protect, isAdmin, adminGetAllUsers);
 
 // Admin can see booking history of any user
 router.get(

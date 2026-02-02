@@ -7,6 +7,9 @@ const initialState: UserState = {
   profile: null,
   isLoading: false,
   error: null,
+  allUsers: [],
+  allUsersLoading: false,
+  allUsersError: null,
 };
 
 export const fetchProfile = createAsyncThunk<IUser, void, { rejectValue: string }>(
@@ -14,6 +17,17 @@ export const fetchProfile = createAsyncThunk<IUser, void, { rejectValue: string 
   async (_, { rejectWithValue }) => {
     try {
       return await userService.getProfile();
+    } catch (err: unknown) {
+      return rejectWithValue((err as { message: string }).message);
+    }
+  }
+);
+
+export const fetchAllUsers = createAsyncThunk<IUser[], void, { rejectValue: string }>(
+  "user/fetchAllUsers",
+  async (_, { rejectWithValue }) => {
+    try {
+      return await userService.admin.getAllUsers();
     } catch (err: unknown) {
       return rejectWithValue((err as { message: string }).message);
     }
@@ -42,6 +56,19 @@ const userSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload ?? "Failed to fetch profile";
         toast.error(action.payload ?? "Failed to load profile");
+      })
+      .addCase(fetchAllUsers.pending, (state) => {
+        state.allUsersLoading = true;
+        state.allUsersError = null;
+      })
+      .addCase(fetchAllUsers.fulfilled, (state, action) => {
+        state.allUsersLoading = false;
+        state.allUsers = action.payload;
+      })
+      .addCase(fetchAllUsers.rejected, (state, action) => {
+        state.allUsersLoading = false;
+        state.allUsersError = action.payload ?? "Failed to fetch users";
+        toast.error(action.payload ?? "Failed to load users");
       });
   },
 });

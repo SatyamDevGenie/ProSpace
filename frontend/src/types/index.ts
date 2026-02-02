@@ -118,6 +118,9 @@ export interface UserState {
   profile: IUser | null;
   isLoading: boolean;
   error: string | null;
+  allUsers: IUser[];
+  allUsersLoading: boolean;
+  allUsersError: string | null;
 }
 
 export interface RootState {

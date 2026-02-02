@@ -18,6 +18,10 @@ export const userService = {
     return { booking: res.data.booking };
   },
   admin: {
+    getAllUsers: async (): Promise<IUser[]> => {
+      const res = await api.get<IUser[]>("/users/admin/all");
+      return res.data;
+    },
     getUserBookings: async (userId: string): Promise<{ total: number; bookings: IBooking[] }> => {
       const res = await api.get<{ total: number; bookings: IBooking[] }>(
         `/users/admin/${userId}/bookings`
