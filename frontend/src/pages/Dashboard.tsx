@@ -55,16 +55,16 @@ export default function Dashboard() {
     <motion.div custom={delay} variants={cardVariants} initial="hidden" animate="visible">
       <Link
         to={to}
-        className="group block rounded-xl border border-slate-200/80 bg-white p-6 shadow-card transition-all duration-200 hover:border-slate-300 hover:shadow-card-hover"
+        className="group block rounded-xl border border-slate-200/80 bg-white p-6 shadow-card transition-all duration-200 hover:border-slate-300 hover:shadow-card-hover dark:border-slate-700 dark:bg-slate-800 dark:hover:border-slate-600 classic:border-stone-300 classic:bg-stone-50 classic:hover:border-stone-400"
       >
-        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50 text-primary-600">
+        <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-400 classic:bg-primary-100 classic:text-primary-700">
           <Icon />
         </div>
-        <h3 className="mt-4 font-semibold text-slate-900">{title}</h3>
-        <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900">
+        <h3 className="mt-4 font-semibold text-slate-900 dark:text-slate-100 classic:text-stone-900">{title}</h3>
+        <p className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 classic:text-stone-900">
           {value}
         </p>
-        <p className="mt-2 flex items-center gap-1 text-sm text-slate-500 transition-colors group-hover:text-primary-600">
+        <p className="mt-2 flex items-center gap-1 text-sm text-slate-500 transition-colors group-hover:text-primary-600 dark:text-slate-400 dark:group-hover:text-primary-400 classic:text-stone-600 classic:group-hover:text-primary-700">
           {subtitle}
           <ChevronRightIcon />
         </p>
@@ -78,12 +78,12 @@ export default function Dashboard() {
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
-        className="rounded-xl border border-slate-200/80 bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white shadow-card"
+        className="rounded-xl border border-slate-200/80 bg-gradient-to-br from-primary-600 to-primary-700 p-6 text-white shadow-card dark:border-slate-700 dark:from-primary-700 dark:to-primary-900 classic:border-stone-400 classic:from-primary-700 classic:to-primary-800"
       >
         <h1 className="text-2xl font-bold sm:text-3xl">
           Hello, {user?.name?.split(" ")[0] ?? "User"}!
         </h1>
-        <p className="mt-2 text-primary-100">
+        <p className="mt-2 text-primary-100 dark:text-primary-200 classic:text-primary-100">
           {isAdmin
             ? "Manage desks and bookings from your admin panel."
             : "Book a desk for your next workday."}

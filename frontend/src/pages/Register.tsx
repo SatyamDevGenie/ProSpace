@@ -31,7 +31,7 @@ export default function Register() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-12 transition-colors dark:bg-slate-900 classic:bg-stone-200">
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
@@ -41,26 +41,26 @@ export default function Register() {
         <div className="mb-8 text-center">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 font-bold text-slate-900"
+            className="inline-flex items-center gap-2 font-bold text-slate-900 dark:text-slate-100 classic:text-stone-900"
           >
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white">
+            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary-600 text-white dark:bg-primary-500 classic:bg-primary-700">
               <LayoutDashboardIcon />
             </span>
             <span className="text-xl">ProSpace</span>
           </Link>
         </div>
 
-        <Card className="border-slate-200 shadow-card-hover">
+        <Card className="border-slate-200 shadow-card-hover dark:border-slate-700 classic:border-stone-300">
           <CardHeader className="text-center">
-            <h1 className="text-2xl font-bold text-slate-900">Create account</h1>
-            <p className="mt-2 text-sm text-slate-500">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 classic:text-stone-900">Create account</h1>
+            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400 classic:text-stone-600">
               Join ProSpace to start booking desks
             </p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-5">
               {error && (
-                <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400 classic:bg-red-50 classic:text-red-800">
                   {error}
                 </div>
               )}
@@ -92,11 +92,11 @@ export default function Register() {
                 Create account
               </Button>
             </form>
-            <p className="mt-6 text-center text-sm text-slate-600">
+            <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400 classic:text-stone-600">
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="font-semibold text-primary-600 hover:text-primary-700"
+                className="font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300 classic:text-primary-700 classic:hover:text-primary-800"
               >
                 Sign in
               </Link>

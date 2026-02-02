@@ -6,9 +6,20 @@
   html {
     scroll-behavior: smooth;
   }
+  
   body {
-    @apply bg-slate-50/80 text-slate-900 antialiased;
+    @apply bg-slate-50/80 text-slate-900 antialiased transition-colors duration-200;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Dark mode */
+  .dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+
+  /* Classic mode - warm, professional tones */
+  .classic body {
+    @apply bg-stone-100 text-stone-900;
   }
 }
 
@@ -21,4 +32,12 @@
 /* Refined focus ring for accessibility */
 *:focus-visible {
   @apply outline-none ring-2 ring-primary-500/40 ring-offset-2;
+}
+
+.dark *:focus-visible {
+  @apply ring-offset-slate-900;
+}
+
+.classic *:focus-visible {
+  @apply ring-offset-stone-100;
 }

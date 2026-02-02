@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { motion, AnimatePresence } from "framer-motion";
 import { LogOutIcon, MenuIcon, XIcon, LayoutDashboardIcon, UserIcon } from "@/components/ui/Icons";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { logout } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
@@ -38,13 +39,13 @@ export function Header() {
   const links = isAdmin ? [...navLinks, ...adminLinks] : navLinks;
 
   return (
-    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80">
+    <header className="sticky top-0 z-50 border-b border-slate-200/80 bg-white/95 backdrop-blur transition-colors supports-[backdrop-filter]:bg-white/80 dark:border-slate-700 dark:bg-slate-800/95 dark:supports-[backdrop-filter]:bg-slate-800/80 classic:border-stone-300 classic:bg-stone-50/95">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6 lg:px-8">
         <Link
           to="/dashboard"
-          className="flex items-center gap-2.5 font-bold text-slate-900 transition-colors hover:text-primary-600"
+          className="flex items-center gap-2.5 font-bold text-slate-900 transition-colors hover:text-primary-600 dark:text-slate-100 dark:hover:text-primary-400 classic:text-stone-900 classic:hover:text-primary-600"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white">
+          <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary-600 text-white dark:bg-primary-500 classic:bg-primary-700">
             <LayoutDashboardIcon />
           </span>
           <span className="hidden text-lg sm:inline">ProSpace</span>
@@ -57,7 +58,7 @@ export function Header() {
                 <Link
                   key={link.to}
                   to={link.to}
-                  className="rounded-lg px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                  className="rounded-lg px-3.5 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100 classic:text-stone-600 classic:hover:bg-stone-200 classic:hover:text-stone-900"
                 >
                   {link.label}
                 </Link>
@@ -65,16 +66,17 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-1">
+              <ThemeToggle />
               <div className="relative">
                 <button
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
-                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100"
+                  className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700 classic:text-stone-700 classic:hover:bg-stone-200"
                 >
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-300 classic:bg-stone-200 classic:text-stone-600">
                     <UserIcon />
                   </div>
                   <span className="hidden max-w-32 truncate sm:inline">
-                    {/* {user?.name} */}
+                    
                   </span>
                 </button>
                 <AnimatePresence>
@@ -84,17 +86,17 @@ export function Header() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-1.5 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card-hover"
+                      className="absolute right-0 mt-1.5 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card-hover dark:border-slate-700 dark:bg-slate-800 classic:border-stone-300 classic:bg-stone-50"
                     >
-                      <div className="border-b border-slate-100 px-4 py-3">
-                        <p className="font-medium text-slate-900">{user?.name}</p>
-                        <p className="mt-0.5 truncate text-xs text-slate-500">
+                      <div className="border-b border-slate-100 px-4 py-3 dark:border-slate-700 classic:border-stone-200">
+                        <p className="font-medium text-slate-900 dark:text-slate-100 classic:text-stone-900">{user?.name}</p>
+                        <p className="mt-0.5 truncate text-xs text-slate-500 dark:text-slate-400 classic:text-stone-500">
                           {user?.email}
                         </p>
                       </div>
                       <button
                         onClick={handleLogout}
-                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+                        className="flex w-full items-center gap-2 px-4 py-2.5 text-sm text-red-600 transition-colors hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/20 classic:text-red-700 classic:hover:bg-red-50"
                       >
                         <LogOutIcon />
                         Sign out
@@ -106,7 +108,7 @@ export function Header() {
 
               <button
                 onClick={() => setMobileOpen(!mobileOpen)}
-                className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 md:hidden"
+                className="rounded-lg p-2 text-slate-600 transition-colors hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-700 classic:text-stone-600 classic:hover:bg-stone-200 md:hidden"
               >
                 {mobileOpen ? <XIcon /> : <MenuIcon />}
               </button>
@@ -122,7 +124,7 @@ export function Header() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-slate-200 bg-white md:hidden"
+            className="border-t border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800 classic:border-stone-300 classic:bg-stone-50 md:hidden"
           >
             <nav className="flex flex-col px-4 py-3">
               {links.map((link) => (
@@ -131,7 +133,7 @@ export function Header() {
                   to={link.to}
                   onClick={() => setMobileOpen(false)}
                   className={cn(
-                    "rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    "rounded-lg px-4 py-3 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-slate-100 classic:text-stone-600 classic:hover:bg-stone-200 classic:hover:text-stone-900"
                   )}
                 >
                   {link.label}
@@ -139,7 +141,7 @@ export function Header() {
               ))}
               <Button
                 variant="ghost"
-                className="mt-2 justify-start text-red-600 hover:bg-red-50 hover:text-red-700"
+                className="mt-2 justify-start text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/20 classic:text-red-700 classic:hover:bg-red-50"
                 onClick={handleLogout}
               >
                 <LogOutIcon />

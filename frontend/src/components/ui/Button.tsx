@@ -13,15 +13,15 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]";
     const variants = {
       primary:
-        "bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:shadow focus-visible:ring-primary-500",
+        "bg-primary-600 text-white shadow-sm hover:bg-primary-700 dark:bg-primary-500 dark:hover:bg-primary-600 classic:bg-primary-700 classic:hover:bg-primary-800 focus-visible:ring-primary-500",
       secondary:
-        "bg-slate-700 text-white shadow-sm hover:bg-slate-800 focus-visible:ring-slate-500",
+        "bg-slate-700 text-white hover:bg-slate-800 dark:bg-slate-600 dark:hover:bg-slate-700 classic:bg-stone-700 classic:hover:bg-stone-800 focus-visible:ring-slate-500",
       outline:
-        "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-slate-400",
+        "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 classic:border-stone-400 classic:bg-stone-50 classic:hover:bg-stone-100 focus-visible:ring-slate-400",
       ghost:
-        "text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-300",
+        "text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-700 classic:text-stone-700 classic:hover:bg-stone-200 focus-visible:ring-slate-300",
       danger:
-        "bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500",
+        "bg-red-600 text-white hover:bg-red-700 dark:bg-red-500 dark:hover:bg-red-600 classic:bg-red-700 classic:hover:bg-red-800 focus-visible:ring-red-500",
     };
     const sizes = {
       sm: "h-9 px-3 text-sm",

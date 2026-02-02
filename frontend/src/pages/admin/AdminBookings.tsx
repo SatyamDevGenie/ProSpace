@@ -13,6 +13,7 @@ import {
 import { fetchDesks } from "@/store/slices/deskSlice";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { RootState } from "@/store";
 import type { IBooking, IUser } from "@/types";
 
@@ -60,6 +61,8 @@ export default function AdminBookings() {
   const [createUserId, setCreateUserId] = useState("");
   const [createDeskId, setCreateDeskId] = useState("");
   const [createDate, setCreateDate] = useState("");
+  const [cancelModalBookingId, setCancelModalBookingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllBookings());
@@ -71,9 +74,13 @@ export default function AdminBookings() {
 
   const handleApprove = (id: string) => dispatch(approveBooking(id));
   const handleReject = (id: string) => dispatch(rejectBooking(id));
-  const handleCancel = (id: string) => {
-    if (window.confirm("Admin cancel this booking?"))
-      dispatch(adminCancelBooking(id));
+  const handleCancelClick = (id: string) => setCancelModalBookingId(id);
+  const handleCancelConfirm = async () => {
+    if (!cancelModalBookingId) return;
+    setCancellingId(cancelModalBookingId);
+    await dispatch(adminCancelBooking(cancelModalBookingId));
+    setCancellingId(null);
+    setCancelModalBookingId(null);
   };
 
   const canAction = (b: IBooking) => b.status === "PENDING";
@@ -107,7 +114,7 @@ export default function AdminBookings() {
   );
 
   const inputClass =
-    "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20";
+    "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 classic:border-stone-300 classic:bg-stone-50 classic:text-stone-900";
 
   return (
     <div className="space-y-6">
@@ -117,8 +124,8 @@ export default function AdminBookings() {
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">All Bookings</h1>
-          <p className="mt-1 text-slate-600">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 classic:text-stone-900">All Bookings</h1>
+          <p className="mt-1 text-slate-600 dark:text-slate-400 classic:text-stone-600">
             View and manage all user bookings
           </p>
         </div>
@@ -132,7 +139,7 @@ export default function AdminBookings() {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <Card>
             <CardContent className="p-5">
-              <h3 className="mb-4 font-semibold text-slate-900">
+              <h3 className="mb-4 font-semibold text-slate-900 dark:text-slate-100 classic:text-stone-900">
                 Create booking for user
               </h3>
               <form
@@ -140,7 +147,7 @@ export default function AdminBookings() {
                 className="flex flex-wrap items-end gap-4"
               >
                 <div className="min-w-[200px] flex-1">
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300 classic:text-stone-700">
                     User
                   </label>
                   {uniqueUserIds.length > 0 ? (
@@ -169,7 +176,7 @@ export default function AdminBookings() {
                   )}
                 </div>
                 <div className="min-w-[120px]">
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300 classic:text-stone-700">
                     Desk
                   </label>
                   <select
@@ -187,7 +194,7 @@ export default function AdminBookings() {
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700 dark:text-slate-300 classic:text-stone-700">
                     Date
                   </label>
                   <input
@@ -221,8 +228,8 @@ export default function AdminBookings() {
             onClick={() => setFilter(s)}
             className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               filter === s
-                ? "bg-primary-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                ? "bg-primary-600 text-white dark:bg-primary-500 classic:bg-primary-700"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600 classic:bg-stone-200 classic:text-stone-700 classic:hover:bg-stone-300"
             }`}
           >
             {s === "all" ? "All" : s.replace("_", " ")}
@@ -233,7 +240,7 @@ export default function AdminBookings() {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/80" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/80 dark:bg-slate-700 classic:bg-stone-300" />
           ))}
         </div>
       ) : (
@@ -250,10 +257,10 @@ export default function AdminBookings() {
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-slate-900">
+                        <span className="font-semibold text-slate-900 dark:text-slate-100 classic:text-stone-900">
                           {getUserName(booking)}
                         </span>
-                        <span className="text-slate-500">
+                        <span className="text-slate-500 dark:text-slate-400 classic:text-stone-600">
                           {getUserEmail(booking)}
                         </span>
                         <span
@@ -264,7 +271,7 @@ export default function AdminBookings() {
                           {booking.status.replace("_", " ")}
                         </span>
                       </div>
-                      <p className="mt-1 text-sm text-slate-500">
+                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 classic:text-stone-600">
                         Desk {getDeskNumber(booking)} · {booking.date}
                       </p>
                     </div>
@@ -289,7 +296,7 @@ export default function AdminBookings() {
                         <Button
                           size="sm"
                           variant="outline"
-                          onClick={() => handleCancel(booking._id)}
+                          onClick={() => handleCancelClick(booking._id)}
                         >
                           <BanIcon />
                           Cancel
@@ -306,7 +313,7 @@ export default function AdminBookings() {
 
       {!isLoading && filtered.length === 0 && (
         <Card>
-          <CardContent className="py-16 text-center text-slate-500">
+          <CardContent className="py-16 text-center text-slate-500 dark:text-slate-400 classic:text-stone-600">
             No bookings found.
           </CardContent>
         </Card>

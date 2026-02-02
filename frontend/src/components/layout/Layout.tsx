@@ -4,7 +4,7 @@ import { Header } from "./Header";
 
 export function Layout() {
   return (
-    <div className="min-h-screen bg-slate-50/80">
+    <div className="min-h-screen bg-slate-50/80 transition-colors dark:bg-slate-900 classic:bg-stone-100">
       <Header />
       <motion.main
         initial={{ opacity: 0 }}

@@ -6,6 +6,7 @@ import { fetchMyBookings, updateBooking, cancelBooking } from "@/store/slices/bo
 import { fetchDesks } from "@/store/slices/deskSlice";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
+import { ConfirmModal } from "@/components/ui/ConfirmModal";
 import type { RootState } from "@/store";
 import type { IBooking } from "@/types";
 
@@ -30,6 +31,8 @@ export default function MyBookings() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDeskId, setEditDeskId] = useState("");
   const [editDate, setEditDate] = useState("");
+  const [cancelModalBookingId, setCancelModalBookingId] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchMyBookings());
@@ -46,10 +49,14 @@ export default function MyBookings() {
     setEditingId(null);
   };
 
-  const handleCancel = async (id: string) => {
-    if (window.confirm("Cancel this booking?")) {
-      await dispatch(cancelBooking(id));
-    }
+  const handleCancelClick = (id: string) => setCancelModalBookingId(id);
+
+  const handleCancelConfirm = async () => {
+    if (!cancelModalBookingId) return;
+    setCancellingId(cancelModalBookingId);
+    await dispatch(cancelBooking(cancelModalBookingId));
+    setCancellingId(null);
+    setCancelModalBookingId(null);
   };
 
   const startEdit = (b: IBooking) => {
@@ -62,19 +69,19 @@ export default function MyBookings() {
   };
 
   const inputClass =
-    "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20";
+    "rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 classic:border-stone-300 classic:bg-stone-50 classic:text-stone-900";
 
   return (
     <div className="space-y-6">
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-        <h1 className="text-2xl font-bold text-slate-900">My Bookings</h1>
-        <p className="mt-1 text-slate-600">View and manage your desk bookings</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 classic:text-stone-900">My Bookings</h1>
+        <p className="mt-1 text-slate-600 dark:text-slate-400 classic:text-stone-600">View and manage your desk bookings</p>
       </motion.div>
 
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-200/80" />
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-200/80 dark:bg-slate-700 classic:bg-stone-300" />
           ))}
         </div>
       ) : (
@@ -90,7 +97,7 @@ export default function MyBookings() {
                 <CardContent className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-slate-900">
+                      <span className="font-semibold text-slate-900 dark:text-slate-100 classic:text-stone-900">
                         Desk {getDeskInfo(booking)}
                       </span>
                       <span
@@ -101,7 +108,7 @@ export default function MyBookings() {
                         {booking.status.replace("_", " ")}
                       </span>
                     </div>
-                    <p className="mt-1 text-sm text-slate-500">{booking.date}</p>
+                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400 classic:text-stone-600">{booking.date}</p>
                   </div>
 
                   {editingId === booking._id ? (
@@ -148,13 +155,13 @@ export default function MyBookings() {
                           <Button
                             size="sm"
                             variant="danger"
-                            onClick={() => handleCancel(booking._id)}
+                            onClick={() => handleCancelClick(booking._id)}
                           >
                             Cancel
                           </Button>
                         </>
                       ) : (
-                        <span className="text-xs text-slate-500">
+                        <span className="text-xs text-slate-500 dark:text-slate-400 classic:text-stone-600">
                           {["REJECTED", "CANCELLED", "ADMIN_CANCELLED"].includes(
                             booking.status
                           )
@@ -173,11 +180,23 @@ export default function MyBookings() {
 
       {!isLoading && myBookings.length === 0 && (
         <Card>
-          <CardContent className="py-16 text-center text-slate-500">
+          <CardContent className="py-16 text-center text-slate-500 dark:text-slate-400 classic:text-stone-600">
             You have no bookings yet. Go to Desks to book one.
           </CardContent>
         </Card>
       )}
+
+      <ConfirmModal
+        open={cancelModalBookingId !== null}
+        onClose={() => setCancelModalBookingId(null)}
+        onConfirm={handleCancelConfirm}
+        title="Cancel booking"
+        message="Are you sure you want to delete this booking? This action cannot be undone."
+        confirmLabel="Yes, delete"
+        cancelLabel="No, keep it"
+        variant="danger"
+        isLoading={cancellingId !== null}
+      />
     </div>
   );
 }

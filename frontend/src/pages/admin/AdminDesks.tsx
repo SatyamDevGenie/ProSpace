@@ -65,8 +65,8 @@ export default function AdminDesks() {
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Manage Desks</h1>
-          <p className="mt-1 text-slate-600">Add, edit or remove desks</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 classic:text-stone-900">Manage Desks</h1>
+          <p className="mt-1 text-slate-600 dark:text-slate-400 classic:text-stone-600">Add, edit or remove desks</p>
         </div>
         <Button
           onClick={() => {
@@ -88,7 +88,7 @@ export default function AdminDesks() {
         >
           <Card>
             <CardHeader>
-              <h3 className="text-lg font-semibold text-slate-900">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 classic:text-stone-900">
                 {editingId ? "Edit desk" : "New desk"}
               </h3>
             </CardHeader>
@@ -132,7 +132,7 @@ export default function AdminDesks() {
       )}
 
       {error && (
-        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <div className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-400 classic:bg-red-50 classic:text-red-800">
           {error}
         </div>
       )}
@@ -140,7 +140,7 @@ export default function AdminDesks() {
       {isLoading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-200/80" />
+            <div key={i} className="h-24 animate-pulse rounded-xl bg-slate-200/80 dark:bg-slate-700 classic:bg-stone-300" />
           ))}
         </div>
       ) : (
@@ -195,7 +195,7 @@ export default function AdminDesks() {
 
       {!isLoading && desks.length === 0 && (
         <Card>
-          <CardContent className="py-16 text-center text-slate-500">
+          <CardContent className="py-16 text-center text-slate-500 dark:text-slate-400 classic:text-stone-600">
             No desks yet. Add your first desk.
           </CardContent>
         </Card>
