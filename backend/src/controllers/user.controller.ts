@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import User from "../models/user.model";
 import Booking from "../models/booking.model";
+import Desk from "../models/desk.model";
 
 /* ================= GET MY PROFILE ================= */
 export const getMyProfile = async (req: any, res: Response) => {
@@ -28,7 +29,19 @@ export const getMyBookings = async (req: any, res: Response) => {
 /* ================= UPDATE MY BOOKING ================= */
 export const updateMyBooking = async (req: any, res: Response) => {
     const { bookingId } = req.params;
-    const { deskId, date } = req.body;
+    const { deskId, date } = req.body ?? {};
+
+    if (!deskId || !date) {
+        return res.status(400).json({ message: "deskId and date are required" });
+    }
+
+    const desk = await Desk.findById(deskId);
+    if (!desk) {
+        return res.status(404).json({ message: "Desk not found" });
+    }
+    if (!desk.isActive) {
+        return res.status(400).json({ message: "Desk is not available" });
+    }
 
     const booking = await Booking.findOne({
         _id: bookingId,
@@ -39,9 +52,9 @@ export const updateMyBooking = async (req: any, res: Response) => {
         return res.status(404).json({ message: "Booking not found" });
     }
 
-    if (booking.status !== "PENDING") {
+    if (!["PENDING", "APPROVED"].includes(booking.status)) {
         return res.status(400).json({
-            message: "Only pending bookings can be updated"
+            message: "Cannot update - booking is rejected or cancelled"
         });
     }
 
@@ -70,9 +83,11 @@ export const updateMyBooking = async (req: any, res: Response) => {
 
     await booking.save();
 
+    const populated = await Booking.findById(booking._id).populate("desk");
+
     res.json({
         message: "Booking updated successfully",
-        booking
+        booking: populated
     });
 };
 
