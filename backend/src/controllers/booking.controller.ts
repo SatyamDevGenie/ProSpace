@@ -2,29 +2,41 @@ import Booking from "../models/booking.model";
 import Desk from "../models/desk.model";
 import { Request, Response } from "express";
 
+/** MongoDB duplicate key error code - occurs when two users book same desk+date simultaneously */
+const MONGO_DUPLICATE_KEY = 11000;
+
 export const createBooking = async (req: any, res: Response) => {
-    const { deskId, date } = req.body ?? {};
+    try {
+        const { deskId, date } = req.body ?? {};
 
-    if (!deskId || !date) {
-        return res.status(400).json({ message: "deskId and date are required" });
+        if (!deskId || !date) {
+            return res.status(400).json({ message: "deskId and date are required" });
+        }
+
+        const desk = await Desk.findById(deskId);
+        if (!desk) {
+            return res.status(404).json({ message: "Desk not found" });
+        }
+        if (!desk.isActive) {
+            return res.status(400).json({ message: "Desk is not available" });
+        }
+
+        const booking = await Booking.create({
+            user: req.user.id,
+            desk: deskId,
+            date
+        });
+
+        const populated = await Booking.findById(booking._id).populate("desk");
+        res.status(201).json(populated);
+    } catch (err: any) {
+        if (err?.code === MONGO_DUPLICATE_KEY) {
+            return res.status(409).json({
+                message: "This desk is already booked for that date. Someone else may have just booked it."
+            });
+        }
+        throw err;
     }
-
-    const desk = await Desk.findById(deskId);
-    if (!desk) {
-        return res.status(404).json({ message: "Desk not found" });
-    }
-    if (!desk.isActive) {
-        return res.status(400).json({ message: "Desk is not available" });
-    }
-
-    const booking = await Booking.create({
-        user: req.user.id,
-        desk: deskId,
-        date
-    });
-
-    const populated = await Booking.findById(booking._id).populate("desk");
-    res.status(201).json(populated);
 };
 
 export const myBookingHistory = async (req: any, res: Response) => {
@@ -65,12 +77,21 @@ export const updateMyBooking = async (req: any, res: Response) => {
     if (exists)
         return res.status(400).json({ message: "You already have a booking for this date" });
 
-    booking.desk = deskId;
-    booking.date = date;
-    await booking.save();
+    try {
+        booking.desk = deskId;
+        booking.date = date;
+        await booking.save();
 
-    const populated = await Booking.findById(booking._id).populate("desk");
-    res.json(populated);
+        const populated = await Booking.findById(booking._id).populate("desk");
+        res.json(populated);
+    } catch (err: any) {
+        if (err?.code === MONGO_DUPLICATE_KEY) {
+            return res.status(409).json({
+                message: "This desk is already booked for that date. Please choose another desk or date."
+            });
+        }
+        throw err;
+    }
 };
 
 export const cancelMyBooking = async (req: any, res: Response) => {
@@ -92,36 +113,45 @@ export const cancelMyBooking = async (req: any, res: Response) => {
 const VALID_STATUSES = ["PENDING", "APPROVED"] as const;
 
 export const adminCreateBooking = async (req: Request, res: Response) => {
-    const { userId, deskId, date, status } = req.body ?? {};
+    try {
+        const { userId, deskId, date, status } = req.body ?? {};
 
-    if (!userId || !deskId || !date) {
-        return res.status(400).json({
-            message: "userId, deskId and date are required"
+        if (!userId || !deskId || !date) {
+            return res.status(400).json({
+                message: "userId, deskId and date are required"
+            });
+        }
+
+        const desk = await Desk.findById(deskId);
+        if (!desk) {
+            return res.status(404).json({ message: "Desk not found" });
+        }
+        if (!desk.isActive) {
+            return res.status(400).json({ message: "Desk is not available" });
+        }
+
+        const bookingStatus = status && VALID_STATUSES.includes(status) ? status : "PENDING";
+
+        const booking = await Booking.create({
+            user: userId,
+            desk: deskId,
+            date,
+            status: bookingStatus
         });
+
+        const populated = await Booking.findById(booking._id)
+            .populate("user", "name email")
+            .populate("desk");
+
+        res.status(201).json(populated);
+    } catch (err: any) {
+        if (err?.code === MONGO_DUPLICATE_KEY) {
+            return res.status(409).json({
+                message: "This desk is already booked for that date."
+            });
+        }
+        throw err;
     }
-
-    const desk = await Desk.findById(deskId);
-    if (!desk) {
-        return res.status(404).json({ message: "Desk not found" });
-    }
-    if (!desk.isActive) {
-        return res.status(400).json({ message: "Desk is not available" });
-    }
-
-    const bookingStatus = status && VALID_STATUSES.includes(status) ? status : "PENDING";
-
-    const booking = await Booking.create({
-        user: userId,
-        desk: deskId,
-        date,
-        status: bookingStatus
-    });
-
-    const populated = await Booking.findById(booking._id)
-        .populate("user", "name email")
-        .populate("desk");
-
-    res.status(201).json(populated);
 };
 
 export const adminAllBookings = async (_: Request, res: Response) => {

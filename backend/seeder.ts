@@ -26,7 +26,11 @@ const seedUsers = async () => {
         for (const user of users) {
             const exists = await User.findOne({ email: user.email });
             if (exists) {
-                console.log(`⏭️  User already exists: ${user.email}`);
+                await User.updateOne(
+                    { email: user.email },
+                    { $set: { name: user.name, role: user.role } }
+                );
+                console.log(`🔄 Updated ${user.role}: ${user.email} (name: ${user.name})`);
                 continue;
             }
 

@@ -3,6 +3,8 @@ import User from "../models/user.model";
 import Booking from "../models/booking.model";
 import Desk from "../models/desk.model";
 
+const MONGO_DUPLICATE_KEY = 11000;
+
 /* ================= GET MY PROFILE ================= */
 export const getMyProfile = async (req: any, res: Response) => {
     const user = await User.findById(req.user.id).select("-password");
@@ -79,17 +81,26 @@ export const updateMyBooking = async (req: any, res: Response) => {
         });
     }
 
-    booking.desk = deskId;
-    booking.date = date;
+    try {
+        booking.desk = deskId;
+        booking.date = date;
 
-    await booking.save();
+        await booking.save();
 
-    const populated = await Booking.findById(booking._id).populate("desk");
+        const populated = await Booking.findById(booking._id).populate("desk");
 
-    res.json({
-        message: "Booking updated successfully",
-        booking: populated
-    });
+        res.json({
+            message: "Booking updated successfully",
+            booking: populated
+        });
+    } catch (err: any) {
+        if (err?.code === MONGO_DUPLICATE_KEY) {
+            return res.status(409).json({
+                message: "This desk is already booked for that date. Please choose another desk or date."
+            });
+        }
+        throw err;
+    }
 };
 
 /* ================= ADMIN: USER BOOKING HISTORY ================= */

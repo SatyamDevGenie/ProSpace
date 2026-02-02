@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { bookingService } from "@/services/bookingService";
 import { userService } from "@/services/userService";
 import type {
+  ApiError,
   BookingState,
   IBooking,
   CreateBookingRequest,
@@ -22,20 +23,31 @@ const setLoading = (state: BookingState) => {
   state.error = null;
 };
 
+const getErrorMessage = (payload: unknown): string => {
+  if (typeof payload === "string") return payload;
+  if (typeof payload === "object" && payload && "message" in payload)
+    return String((payload as { message: string }).message);
+  return "An error occurred";
+};
+
+const isConflictError = (payload: unknown): boolean =>
+  typeof payload === "object" && payload !== null && (payload as { status?: number }).status === 409;
+
 const setRejected = (state: BookingState, action: { payload?: unknown }) => {
   state.isLoading = false;
-  state.error = (action.payload as string) ?? "An error occurred";
+  state.error = getErrorMessage(action.payload);
 };
 
 export const createBooking = createAsyncThunk<
   IBooking,
   CreateBookingRequest,
-  { rejectValue: string }
+  { rejectValue: { message: string; status?: number } }
 >("booking/create", async (data, { rejectWithValue }) => {
   try {
     return await bookingService.create(data);
   } catch (err: unknown) {
-    return rejectWithValue((err as { message: string }).message);
+    const e = err as ApiError;
+    return rejectWithValue({ message: e.message, status: e.status });
   }
 });
 
@@ -65,13 +77,14 @@ export const fetchBookingHistory = createAsyncThunk<IBooking[], void, { rejectVa
 export const updateBooking = createAsyncThunk<
   IBooking,
   { id: string; data: UpdateBookingRequest },
-  { rejectValue: string }
+  { rejectValue: { message: string; status?: number } }
 >("booking/update", async ({ id, data }, { rejectWithValue }) => {
   try {
     const res = await userService.updateBooking(id, data);
     return res.booking;
   } catch (err: unknown) {
-    return rejectWithValue((err as { message: string }).message);
+    const e = err as ApiError;
+    return rejectWithValue({ message: e.message, status: e.status });
   }
 });
 
@@ -100,12 +113,13 @@ export const fetchAllBookings = createAsyncThunk<IBooking[], void, { rejectValue
 export const adminCreateBooking = createAsyncThunk<
   IBooking,
   AdminCreateBookingRequest,
-  { rejectValue: string }
+  { rejectValue: { message: string; status?: number } }
 >("booking/adminCreate", async (data, { rejectWithValue }) => {
   try {
     return await bookingService.admin.create(data);
   } catch (err: unknown) {
-    return rejectWithValue((err as { message: string }).message);
+    const e = err as ApiError;
+    return rejectWithValue({ message: e.message, status: e.status });
   }
 });
 
@@ -213,7 +227,10 @@ const bookingSlice = createSlice({
       })
       .addCase(createBooking.rejected, (state, action) => {
         setRejected(state, action);
-        toast.error(action.payload ?? "Failed to create booking");
+        const msg = getErrorMessage(action.payload);
+        isConflictError(action.payload)
+          ? toast.warning(msg)
+          : toast.error(msg || "Failed to create booking");
       })
       .addCase(fetchMyBookings.rejected, (state, action) => {
         setRejected(state, action);
@@ -225,7 +242,10 @@ const bookingSlice = createSlice({
       })
       .addCase(updateBooking.rejected, (state, action) => {
         setRejected(state, action);
-        toast.error(action.payload ?? "Failed to update booking");
+        const msg = getErrorMessage(action.payload);
+        isConflictError(action.payload)
+          ? toast.warning(msg)
+          : toast.error(msg || "Failed to update booking");
       })
       .addCase(cancelBooking.rejected, (state, action) => {
         setRejected(state, action);
@@ -237,7 +257,10 @@ const bookingSlice = createSlice({
       })
       .addCase(adminCreateBooking.rejected, (state, action) => {
         setRejected(state, action);
-        toast.error(action.payload ?? "Failed to create booking");
+        const msg = getErrorMessage(action.payload);
+        isConflictError(action.payload)
+          ? toast.warning(msg)
+          : toast.error(msg || "Failed to create booking");
       })
       .addCase(approveBooking.rejected, (_, action) => {
         toast.error(action.payload ?? "Failed to approve booking");

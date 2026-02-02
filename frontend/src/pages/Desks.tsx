@@ -26,9 +26,11 @@ export default function Desks() {
   const handleBook = async () => {
     if (!selectedDesk || !date) return;
     setSubmitting(true);
-    await dispatch(createBooking({ deskId: selectedDesk._id, date }));
+    const result = await dispatch(createBooking({ deskId: selectedDesk._id, date }));
     setSubmitting(false);
-    setSelectedDesk(null);
+    if (createBooking.fulfilled.match(result)) {
+      setSelectedDesk(null);
+    }
   };
 
   const activeDesks = desks.filter((d) => d.isActive);

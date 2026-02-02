@@ -74,7 +74,7 @@ export function Header() {
                     <UserIcon />
                   </div>
                   <span className="hidden max-w-32 truncate sm:inline">
-                    {user?.name}
+                    {/* {user?.name} */}
                   </span>
                 </button>
                 <AnimatePresence>

@@ -81,17 +81,19 @@ export default function AdminBookings() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createUserId || !createDeskId || !createDate) return;
-    await dispatch(
+    const result = await dispatch(
       adminCreateBooking({
         userId: createUserId,
         deskId: createDeskId,
         date: createDate,
       })
     );
-    setShowCreate(false);
-    setCreateUserId("");
-    setCreateDeskId("");
-    setCreateDate("");
+    if (adminCreateBooking.fulfilled.match(result)) {
+      setShowCreate(false);
+      setCreateUserId("");
+      setCreateDeskId("");
+      setCreateDate("");
+    }
   };
 
   const uniqueUserIds = Array.from(

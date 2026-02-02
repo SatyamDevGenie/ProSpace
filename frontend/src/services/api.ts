@@ -25,6 +25,7 @@ api.interceptors.response.use(
     const err: ApiError = {
       message: error.response?.data?.message || error.message || "Something went wrong",
       error: error.response?.data?.error,
+      status: error.response?.status,
     };
     return Promise.reject(err);
   }

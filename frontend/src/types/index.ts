@@ -132,4 +132,5 @@ export interface RootState {
 export interface ApiError {
   message: string;
   error?: string;
+  status?: number;
 }
