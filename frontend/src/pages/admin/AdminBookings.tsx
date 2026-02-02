@@ -16,9 +16,9 @@ import { Card, CardContent } from "@/components/ui/Card";
 import type { RootState } from "@/store";
 import type { IBooking, IUser } from "@/types";
 
-const statusColors: Record<string, string> = {
+const statusStyles: Record<string, string> = {
   PENDING: "bg-amber-100 text-amber-800",
-  APPROVED: "bg-green-100 text-green-800",
+  APPROVED: "bg-emerald-100 text-emerald-800",
   REJECTED: "bg-red-100 text-red-800",
   CANCELLED: "bg-slate-100 text-slate-600",
   ADMIN_CANCELLED: "bg-red-100 text-red-800",
@@ -42,6 +42,15 @@ function getDeskNumber(booking: IBooking): string {
   return typeof d === "object" ? d.deskNumber : "—";
 }
 
+const filterOptions = [
+  "all",
+  "PENDING",
+  "APPROVED",
+  "REJECTED",
+  "CANCELLED",
+  "ADMIN_CANCELLED",
+];
+
 export default function AdminBookings() {
   const { bookings, isLoading } = useSelector((state: RootState) => state.booking);
   const { desks } = useSelector((state: RootState) => state.desk);
@@ -58,14 +67,13 @@ export default function AdminBookings() {
   }, [dispatch]);
 
   const filtered =
-    filter === "all"
-      ? bookings
-      : bookings.filter((b) => b.status === filter);
+    filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
 
   const handleApprove = (id: string) => dispatch(approveBooking(id));
   const handleReject = (id: string) => dispatch(rejectBooking(id));
   const handleCancel = (id: string) => {
-    if (window.confirm("Admin cancel this booking?")) dispatch(adminCancelBooking(id));
+    if (window.confirm("Admin cancel this booking?"))
+      dispatch(adminCancelBooking(id));
   };
 
   const canAction = (b: IBooking) => b.status === "PENDING";
@@ -73,7 +81,13 @@ export default function AdminBookings() {
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!createUserId || !createDeskId || !createDate) return;
-    await dispatch(adminCreateBooking({ userId: createUserId, deskId: createDeskId, date: createDate }));
+    await dispatch(
+      adminCreateBooking({
+        userId: createUserId,
+        deskId: createDeskId,
+        date: createDate,
+      })
+    );
     setShowCreate(false);
     setCreateUserId("");
     setCreateDeskId("");
@@ -83,46 +97,62 @@ export default function AdminBookings() {
   const uniqueUserIds = Array.from(
     new Set(
       bookings
-        .map((b) => (typeof b.user === "object" && b.user ? (b.user as IUser)._id : null))
+        .map((b) =>
+          typeof b.user === "object" && b.user ? (b.user as IUser)._id : null
+        )
         .filter(Boolean) as string[]
     )
   );
 
+  const inputClass =
+    "w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20";
+
   return (
     <div className="space-y-6">
       <motion.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between"
       >
         <div>
           <h1 className="text-2xl font-bold text-slate-900">All Bookings</h1>
-          <p className="mt-1 text-slate-600">View and manage all user bookings</p>
+          <p className="mt-1 text-slate-600">
+            View and manage all user bookings
+          </p>
         </div>
         <Button onClick={() => setShowCreate(!showCreate)}>
           <PlusIcon />
-          Create Booking
+          Create booking
         </Button>
       </motion.div>
 
       {showCreate && (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <Card>
-            <CardContent className="p-4">
-              <h3 className="mb-4 font-semibold">Create Booking for User</h3>
-              <form onSubmit={handleCreate} className="flex flex-wrap items-end gap-4">
-                <div className="min-w-[200px]">
-                  <label className="mb-1 block text-sm font-medium">User ID</label>
+            <CardContent className="p-5">
+              <h3 className="mb-4 font-semibold text-slate-900">
+                Create booking for user
+              </h3>
+              <form
+                onSubmit={handleCreate}
+                className="flex flex-wrap items-end gap-4"
+              >
+                <div className="min-w-[200px] flex-1">
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    User
+                  </label>
                   {uniqueUserIds.length > 0 ? (
                     <select
                       value={createUserId}
                       onChange={(e) => setCreateUserId(e.target.value)}
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className={inputClass}
                       required
                     >
                       <option value="">Select user</option>
                       {uniqueUserIds.map((id) => (
-                        <option key={id} value={id}>{id}</option>
+                        <option key={id} value={id}>
+                          {id}
+                        </option>
                       ))}
                     </select>
                   ) : (
@@ -131,37 +161,51 @@ export default function AdminBookings() {
                       value={createUserId}
                       onChange={(e) => setCreateUserId(e.target.value)}
                       placeholder="Paste user MongoDB ID"
-                      className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                      className={inputClass}
                       required
                     />
                   )}
                 </div>
                 <div className="min-w-[120px]">
-                  <label className="mb-1 block text-sm font-medium">Desk</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Desk
+                  </label>
                   <select
                     value={createDeskId}
                     onChange={(e) => setCreateDeskId(e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 px-3 py-2"
+                    className={inputClass}
                     required
                   >
                     <option value="">Select desk</option>
                     {desks.map((d) => (
-                      <option key={d._id} value={d._id}>{d.deskNumber}</option>
+                      <option key={d._id} value={d._id}>
+                        {d.deskNumber}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium">Date</label>
+                  <label className="mb-1.5 block text-sm font-medium text-slate-700">
+                    Date
+                  </label>
                   <input
                     type="date"
                     value={createDate}
                     onChange={(e) => setCreateDate(e.target.value)}
-                    className="rounded-lg border border-slate-300 px-3 py-2"
+                    className={inputClass}
                     required
                   />
                 </div>
-                <Button type="submit">Create</Button>
-                <Button type="button" variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
+                <div className="flex gap-2">
+                  <Button type="submit">Create</Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowCreate(false)}
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </form>
             </CardContent>
           </Card>
@@ -169,11 +213,11 @@ export default function AdminBookings() {
       )}
 
       <div className="flex flex-wrap gap-2">
-        {["all", "PENDING", "APPROVED", "REJECTED", "CANCELLED", "ADMIN_CANCELLED"].map((s) => (
+        {filterOptions.map((s) => (
           <button
             key={s}
             onClick={() => setFilter(s)}
-            className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
               filter === s
                 ? "bg-primary-600 text-white"
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
@@ -187,7 +231,7 @@ export default function AdminBookings() {
       {isLoading ? (
         <div className="space-y-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200" />
+            <div key={i} className="h-20 animate-pulse rounded-xl bg-slate-200/80" />
           ))}
         </div>
       ) : (
@@ -195,29 +239,31 @@ export default function AdminBookings() {
           {filtered.map((booking, i) => (
             <motion.div
               key={booking._id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.03 }}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.02, duration: 0.2 }}
             >
               <Card>
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex-1">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-semibold text-slate-900">
                           {getUserName(booking)}
                         </span>
-                        <span className="text-slate-500">{getUserEmail(booking)}</span>
+                        <span className="text-slate-500">
+                          {getUserEmail(booking)}
+                        </span>
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                            statusColors[booking.status] ?? "bg-slate-100"
+                            statusStyles[booking.status] ?? "bg-slate-100"
                           }`}
                         >
                           {booking.status.replace("_", " ")}
                         </span>
                       </div>
                       <p className="mt-1 text-sm text-slate-500">
-                        Desk {getDeskNumber(booking)} • {booking.date}
+                        Desk {getDeskNumber(booking)} · {booking.date}
                       </p>
                     </div>
                     {canAction(booking) && (
@@ -225,7 +271,7 @@ export default function AdminBookings() {
                         <Button
                           size="sm"
                           onClick={() => handleApprove(booking._id)}
-                          className="!bg-green-600 hover:!bg-green-700"
+                          className="!bg-emerald-600 hover:!bg-emerald-700"
                         >
                           <CheckIcon />
                           Approve
@@ -258,7 +304,7 @@ export default function AdminBookings() {
 
       {!isLoading && filtered.length === 0 && (
         <Card>
-          <CardContent className="py-12 text-center text-slate-500">
+          <CardContent className="py-16 text-center text-slate-500">
             No bookings found.
           </CardContent>
         </Card>

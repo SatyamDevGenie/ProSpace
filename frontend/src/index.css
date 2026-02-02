@@ -3,7 +3,22 @@
 @tailwind utilities;
 
 @layer base {
-  body {
-    @apply bg-slate-50 text-slate-900 antialiased;
+  html {
+    scroll-behavior: smooth;
   }
+  body {
+    @apply bg-slate-50/80 text-slate-900 antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Refined focus ring for accessibility */
+*:focus-visible {
+  @apply outline-none ring-2 ring-primary-500/40 ring-offset-2;
 }

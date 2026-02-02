@@ -10,18 +10,23 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = "primary", size = "md", isLoading, disabled, children, ...props }, ref) => {
     const base =
-      "inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50";
+      "inline-flex items-center justify-center gap-2 rounded-lg font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.98]";
     const variants = {
-      primary: "bg-primary-600 text-white hover:bg-primary-700 focus-visible:ring-primary-500",
-      secondary: "bg-slate-600 text-white hover:bg-slate-700 focus-visible:ring-slate-500",
-      outline: "border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus-visible:ring-primary-500",
-      ghost: "hover:bg-slate-100 focus-visible:ring-slate-400",
-      danger: "bg-red-600 text-white hover:bg-red-700 focus-visible:ring-red-500",
+      primary:
+        "bg-primary-600 text-white shadow-sm hover:bg-primary-700 hover:shadow focus-visible:ring-primary-500",
+      secondary:
+        "bg-slate-700 text-white shadow-sm hover:bg-slate-800 focus-visible:ring-slate-500",
+      outline:
+        "border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 hover:border-slate-400 focus-visible:ring-slate-400",
+      ghost:
+        "text-slate-700 hover:bg-slate-100 focus-visible:ring-slate-300",
+      danger:
+        "bg-red-600 text-white shadow-sm hover:bg-red-700 focus-visible:ring-red-500",
     };
     const sizes = {
       sm: "h-9 px-3 text-sm",
-      md: "h-10 px-4 text-base",
-      lg: "h-12 px-6 text-lg",
+      md: "h-11 px-5 text-sm",
+      lg: "h-12 px-6 text-base",
     };
     return (
       <button
@@ -32,10 +37,11 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       >
         {isLoading ? (
           <svg
-            className="mr-2 h-4 w-4 animate-spin"
+            className="h-4 w-4 animate-spin"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
+            aria-hidden
           >
             <circle
               className="opacity-25"
