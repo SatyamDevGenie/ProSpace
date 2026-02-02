@@ -5,8 +5,8 @@ import User from "./src/models/user.model";
 
 const users = [
     {
-        name: "Satyam Administrator",
-        email: "satyam@gmail.com",
+        name: "Satyam Admin",
+        email: "satyamsawant54@gmail.com",
         password: "satyam123",
         role: "ADMIN" as const
     },
