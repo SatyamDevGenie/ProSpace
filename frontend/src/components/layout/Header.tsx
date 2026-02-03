@@ -14,12 +14,14 @@ const navLinks = [
   { to: "/dashboard", label: "Dashboard" },
   { to: "/desks", label: "Desks" },
   { to: "/my-bookings", label: "My Bookings" },
+  { to: "/reviews", label: "Reviews" },
 ];
 
 const adminLinks = [
   { to: "/admin/desks", label: "Manage Desks" },
   { to: "/admin/bookings", label: "All Bookings" },
   { to: "/admin/analytics", label: "User Analytics" },
+  { to: "/admin/reviews", label: "Reviews" },
 ];
 
 export function Header() {

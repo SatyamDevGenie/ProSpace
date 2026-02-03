@@ -13,6 +13,8 @@ import MyBookings from "./pages/MyBookings";
 import AdminDesks from "./pages/admin/AdminDesks";
 import AdminBookings from "./pages/admin/AdminBookings";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
+import AdminReviews from "./pages/admin/AdminReviews";
+import Reviews from "./pages/Reviews";
 import type { RootState } from "./store";
 
 function App() {
@@ -43,6 +45,7 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="desks" element={<Desks />} />
           <Route path="my-bookings" element={<MyBookings />} />
+          <Route path="reviews" element={<Reviews />} />
 
           <Route
             path="admin/desks"
@@ -65,6 +68,14 @@ function App() {
             element={
               <ProtectedRoute adminOnly>
                 <AdminAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="admin/reviews"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminReviews />
               </ProtectedRoute>
             }
           />

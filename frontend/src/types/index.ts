@@ -90,6 +90,28 @@ export interface UpdateDeskRequest {
   isActive?: boolean;
 }
 
+export interface IReview {
+  _id: string;
+  user: string | IUser;
+  rating: number;
+  text: string;
+  likedBy?: string[];
+  likes?: number;
+  likedByMe?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateReviewRequest {
+  rating: number;
+  text: string;
+}
+
+export interface UpdateReviewRequest {
+  rating?: number;
+  text?: string;
+}
+
 /* ==================== Redux State ==================== */
 
 export interface AuthState {
@@ -123,11 +145,20 @@ export interface UserState {
   allUsersError: string | null;
 }
 
+export interface ReviewState {
+  reviews: IReview[];
+  myReview: IReview | null;
+  adminReviews: IReview[];
+  isLoading: boolean;
+  error: string | null;
+}
+
 export interface RootState {
   auth: AuthState;
   desk: DeskState;
   booking: BookingState;
   user: UserState;
+  review: ReviewState;
 }
 
 /* ==================== API Error ==================== */

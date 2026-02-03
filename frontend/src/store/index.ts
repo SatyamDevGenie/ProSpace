@@ -3,6 +3,7 @@ import authReducer from "./slices/authSlice";
 import deskReducer from "./slices/deskSlice";
 import bookingReducer from "./slices/bookingSlice";
 import userReducer from "./slices/userSlice";
+import reviewReducer from "./slices/reviewSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     desk: deskReducer,
     booking: bookingReducer,
     user: userReducer,
+    review: reviewReducer,
   },
 });
 
