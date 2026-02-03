@@ -1,6 +1,12 @@
 import Booking from "../models/booking.model";
 import Desk from "../models/desk.model";
 import { Request, Response } from "express";
+import {
+    sendBookingApprovedEmail,
+    sendBookingRejectedEmail,
+    sendAdminCancelledEmail,
+    sendUserCancelledToAdminEmail
+} from "../utils/email";
 
 /** MongoDB duplicate key error code - occurs when two users book same desk+date simultaneously */
 const MONGO_DUPLICATE_KEY = 11000;
@@ -95,6 +101,7 @@ export const updateMyBooking = async (req: any, res: Response) => {
 };
 
 export const cancelMyBooking = async (req: any, res: Response) => {
+    const { reason } = req.body ?? {};
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     if (booking.user.toString() !== req.user.id)
@@ -106,7 +113,24 @@ export const cancelMyBooking = async (req: any, res: Response) => {
         return res.status(400).json({ message: "Cannot cancel - booking date has passed" });
     booking.status = "CANCELLED";
     await booking.save();
-    const populated = await Booking.findById(booking._id).populate("desk");
+    const populated = await Booking.findById(booking._id).populate("user", "name email").populate("desk");
+    const adminEmail = process.env.GMAIL_USER;
+    if (adminEmail) {
+        try {
+            const u = populated!.user as { name?: string; email?: string };
+            const d = populated!.desk as { deskNumber?: string };
+            await sendUserCancelledToAdminEmail(
+                adminEmail,
+                u?.name ?? "User",
+                u?.email ?? "",
+                d?.deskNumber ?? "—",
+                populated!.date,
+                reason ?? ""
+            );
+        } catch (e) {
+            console.error("Failed to send user-cancelled email to admin:", e);
+        }
+    }
     res.json(populated);
 };
 
@@ -169,23 +193,52 @@ export const approveBooking = async (req: Request, res: Response) => {
     booking.status = "APPROVED";
     await booking.save();
     const populated = await Booking.findById(booking._id).populate("user", "name email").populate("desk");
+    const u = populated!.user as { email?: string; name?: string };
+    const d = populated!.desk as { deskNumber?: string };
+    if (u?.email) {
+        try {
+            await sendBookingApprovedEmail(u.email, u.name ?? "User", d?.deskNumber ?? "—", populated!.date);
+        } catch (e) {
+            console.error("Failed to send booking-approved email:", e);
+        }
+    }
     res.json(populated);
 };
 
 export const rejectBooking = async (req: Request, res: Response) => {
+    const { reason } = req.body ?? {};
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     booking.status = "REJECTED";
     await booking.save();
     const populated = await Booking.findById(booking._id).populate("user", "name email").populate("desk");
+    const u = populated!.user as { email?: string; name?: string };
+    const d = populated!.desk as { deskNumber?: string };
+    if (u?.email) {
+        try {
+            await sendBookingRejectedEmail(u.email, u.name ?? "User", d?.deskNumber ?? "—", populated!.date, reason ?? "");
+        } catch (e) {
+            console.error("Failed to send booking-rejected email:", e);
+        }
+    }
     res.json(populated);
 };
 
 export const adminCancelBooking = async (req: Request, res: Response) => {
+    const { reason } = req.body ?? {};
     const booking = await Booking.findById(req.params.id);
     if (!booking) return res.status(404).json({ message: "Booking not found" });
     booking.status = "ADMIN_CANCELLED";
     await booking.save();
     const populated = await Booking.findById(booking._id).populate("user", "name email").populate("desk");
+    const u = populated!.user as { email?: string; name?: string };
+    const d = populated!.desk as { deskNumber?: string };
+    if (u?.email) {
+        try {
+            await sendAdminCancelledEmail(u.email, u.name ?? "User", d?.deskNumber ?? "—", populated!.date, reason ?? "");
+        } catch (e) {
+            console.error("Failed to send admin-cancelled email:", e);
+        }
+    }
     res.json(populated);
 };

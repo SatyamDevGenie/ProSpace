@@ -19,8 +19,10 @@ export const bookingService = {
     const res = await api.patch<IBooking>(`/bookings/me/${id}`, data);
     return res.data;
   },
-  cancel: async (id: string): Promise<IBooking> => {
-    const res = await api.delete<IBooking>(`/bookings/me/${id}`);
+  cancel: async (id: string, reason?: string): Promise<IBooking> => {
+    const res = await api.delete<IBooking>(`/bookings/me/${id}`, {
+      data: { reason: reason ?? "" },
+    });
     return res.data;
   },
   admin: {
@@ -36,12 +38,16 @@ export const bookingService = {
       const res = await api.patch<IBooking>(`/bookings/admin/approve/${id}`);
       return res.data;
     },
-    reject: async (id: string): Promise<IBooking> => {
-      const res = await api.patch<IBooking>(`/bookings/admin/reject/${id}`);
+    reject: async (id: string, reason?: string): Promise<IBooking> => {
+      const res = await api.patch<IBooking>(`/bookings/admin/reject/${id}`, {
+        reason: reason ?? "",
+      });
       return res.data;
     },
-    cancel: async (id: string): Promise<IBooking> => {
-      const res = await api.patch<IBooking>(`/bookings/admin/cancel/${id}`);
+    cancel: async (id: string, reason?: string): Promise<IBooking> => {
+      const res = await api.patch<IBooking>(`/bookings/admin/cancel/${id}`, {
+        reason: reason ?? "",
+      });
       return res.data;
     },
   },

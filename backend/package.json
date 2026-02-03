@@ -20,7 +20,8 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.1.5"
+    "mongoose": "^9.1.5",
+    "nodemailer": "^7.0.13"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
@@ -31,6 +32,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/morgan": "^1.9.10",
     "@types/node": "^25.1.0",
+    "@types/nodemailer": "^7.0.9",
     "@types/nodemon": "^1.19.6",
     "concurrently": "^9.2.1",
     "ts-node-dev": "^2.0.0",

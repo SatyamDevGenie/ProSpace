@@ -88,16 +88,17 @@ export const updateBooking = createAsyncThunk<
   }
 });
 
-export const cancelBooking = createAsyncThunk<IBooking, string, { rejectValue: string }>(
-  "booking/cancel",
-  async (id, { rejectWithValue }) => {
-    try {
-      return await bookingService.cancel(id);
-    } catch (err: unknown) {
-      return rejectWithValue((err as { message: string }).message);
-    }
+export const cancelBooking = createAsyncThunk<
+  IBooking,
+  { id: string; reason?: string },
+  { rejectValue: string }
+>("booking/cancel", async ({ id, reason }, { rejectWithValue }) => {
+  try {
+    return await bookingService.cancel(id, reason);
+  } catch (err: unknown) {
+    return rejectWithValue((err as { message: string }).message);
   }
-);
+});
 
 export const fetchAllBookings = createAsyncThunk<IBooking[], void, { rejectValue: string }>(
   "booking/fetchAll",
@@ -134,27 +135,29 @@ export const approveBooking = createAsyncThunk<IBooking, string, { rejectValue: 
   }
 );
 
-export const rejectBooking = createAsyncThunk<IBooking, string, { rejectValue: string }>(
-  "booking/reject",
-  async (id, { rejectWithValue }) => {
-    try {
-      return await bookingService.admin.reject(id);
-    } catch (err: unknown) {
-      return rejectWithValue((err as { message: string }).message);
-    }
+export const rejectBooking = createAsyncThunk<
+  IBooking,
+  { id: string; reason?: string },
+  { rejectValue: string }
+>("booking/reject", async ({ id, reason }, { rejectWithValue }) => {
+  try {
+    return await bookingService.admin.reject(id, reason);
+  } catch (err: unknown) {
+    return rejectWithValue((err as { message: string }).message);
   }
-);
+});
 
-export const adminCancelBooking = createAsyncThunk<IBooking, string, { rejectValue: string }>(
-  "booking/adminCancel",
-  async (id, { rejectWithValue }) => {
-    try {
-      return await bookingService.admin.cancel(id);
-    } catch (err: unknown) {
-      return rejectWithValue((err as { message: string }).message);
-    }
+export const adminCancelBooking = createAsyncThunk<
+  IBooking,
+  { id: string; reason?: string },
+  { rejectValue: string }
+>("booking/adminCancel", async ({ id, reason }, { rejectWithValue }) => {
+  try {
+    return await bookingService.admin.cancel(id, reason);
+  } catch (err: unknown) {
+    return rejectWithValue((err as { message: string }).message);
   }
-);
+});
 
 const bookingSlice = createSlice({
   name: "booking",

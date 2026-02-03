@@ -6,7 +6,7 @@ import { fetchMyBookings, updateBooking, cancelBooking } from "@/store/slices/bo
 import { fetchDesks } from "@/store/slices/deskSlice";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { ReasonModal } from "@/components/ui/ReasonModal";
 import type { RootState } from "@/store";
 import type { IBooking } from "@/types";
 
@@ -51,10 +51,10 @@ export default function MyBookings() {
 
   const handleCancelClick = (id: string) => setCancelModalBookingId(id);
 
-  const handleCancelConfirm = async () => {
+  const handleCancelConfirm = async (reason: string) => {
     if (!cancelModalBookingId) return;
     setCancellingId(cancelModalBookingId);
-    await dispatch(cancelBooking(cancelModalBookingId));
+    await dispatch(cancelBooking({ id: cancelModalBookingId, reason }));
     setCancellingId(null);
     setCancelModalBookingId(null);
   };
@@ -186,13 +186,14 @@ export default function MyBookings() {
         </Card>
       )}
 
-      <ConfirmModal
+      <ReasonModal
         open={cancelModalBookingId !== null}
         onClose={() => setCancelModalBookingId(null)}
         onConfirm={handleCancelConfirm}
         title="Cancel booking"
-        message="Are you sure you want to delete this booking? This action cannot be undone."
-        confirmLabel="Yes, delete"
+        message="The admin will receive an email with your reason. Please provide a reason for cancelling (optional)."
+        placeholder="Reason for cancellation (e.g. working from home, sick leave)"
+        confirmLabel="Yes, cancel"
         cancelLabel="No, keep it"
         variant="danger"
         isLoading={cancellingId !== null}

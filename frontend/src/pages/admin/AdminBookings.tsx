@@ -13,7 +13,7 @@ import {
 import { fetchDesks } from "@/store/slices/deskSlice";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
-import { ConfirmModal } from "@/components/ui/ConfirmModal";
+import { ReasonModal } from "@/components/ui/ReasonModal";
 import type { RootState } from "@/store";
 import type { IBooking, IUser } from "@/types";
 
@@ -61,8 +61,9 @@ export default function AdminBookings() {
   const [createUserId, setCreateUserId] = useState("");
   const [createDeskId, setCreateDeskId] = useState("");
   const [createDate, setCreateDate] = useState("");
+  const [rejectModalBookingId, setRejectModalBookingId] = useState<string | null>(null);
   const [cancelModalBookingId, setCancelModalBookingId] = useState<string | null>(null);
-  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
     dispatch(fetchAllBookings());
@@ -72,14 +73,25 @@ export default function AdminBookings() {
   const filtered =
     filter === "all" ? bookings : bookings.filter((b) => b.status === filter);
 
-  const handleApprove = (id: string) => dispatch(approveBooking(id));
-  const handleReject = (id: string) => dispatch(rejectBooking(id));
+  const handleApprove = async (id: string) => {
+    setActionLoadingId(id);
+    await dispatch(approveBooking(id));
+    setActionLoadingId(null);
+  };
+  const handleRejectClick = (id: string) => setRejectModalBookingId(id);
+  const handleRejectConfirm = async (reason: string) => {
+    if (!rejectModalBookingId) return;
+    setActionLoadingId(rejectModalBookingId);
+    await dispatch(rejectBooking({ id: rejectModalBookingId, reason }));
+    setActionLoadingId(null);
+    setRejectModalBookingId(null);
+  };
   const handleCancelClick = (id: string) => setCancelModalBookingId(id);
-  const handleCancelConfirm = async () => {
+  const handleCancelConfirm = async (reason: string) => {
     if (!cancelModalBookingId) return;
-    setCancellingId(cancelModalBookingId);
-    await dispatch(adminCancelBooking(cancelModalBookingId));
-    setCancellingId(null);
+    setActionLoadingId(cancelModalBookingId);
+    await dispatch(adminCancelBooking({ id: cancelModalBookingId, reason }));
+    setActionLoadingId(null);
     setCancelModalBookingId(null);
   };
 
@@ -281,6 +293,8 @@ export default function AdminBookings() {
                           size="sm"
                           onClick={() => handleApprove(booking._id)}
                           className="!bg-emerald-600 hover:!bg-emerald-700"
+                          disabled={actionLoadingId === booking._id}
+                          isLoading={actionLoadingId === booking._id}
                         >
                           <CheckIcon />
                           Approve
@@ -288,7 +302,7 @@ export default function AdminBookings() {
                         <Button
                           size="sm"
                           variant="danger"
-                          onClick={() => handleReject(booking._id)}
+                          onClick={() => handleRejectClick(booking._id)}
                         >
                           <XIcon />
                           Reject
@@ -310,6 +324,29 @@ export default function AdminBookings() {
           ))}
         </div>
       )}
+
+      <ReasonModal
+        open={rejectModalBookingId !== null}
+        onClose={() => setRejectModalBookingId(null)}
+        onConfirm={handleRejectConfirm}
+        title="Reject booking"
+        message="The user will receive an email with your reason. Please provide a reason for rejecting this booking."
+        placeholder="Reason for rejection (e.g. desk unavailable, capacity limit)"
+        confirmLabel="Reject"
+        variant="danger"
+        isLoading={actionLoadingId === rejectModalBookingId}
+      />
+      <ReasonModal
+        open={cancelModalBookingId !== null}
+        onClose={() => setCancelModalBookingId(null)}
+        onConfirm={handleCancelConfirm}
+        title="Cancel booking"
+        message="The user will receive an email with your reason. Please provide a reason for cancelling this booking."
+        placeholder="Reason for cancellation (e.g. office closed, maintenance)"
+        confirmLabel="Cancel booking"
+        variant="danger"
+        isLoading={actionLoadingId === cancelModalBookingId}
+      />
 
       {!isLoading && filtered.length === 0 && (
         <Card>
