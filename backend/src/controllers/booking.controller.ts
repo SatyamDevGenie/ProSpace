@@ -114,19 +114,23 @@ export const cancelMyBooking = async (req: any, res: Response) => {
     booking.status = "CANCELLED";
     await booking.save();
     const populated = await Booking.findById(booking._id).populate("user", "name email").populate("desk");
-    const adminEmail = process.env.GMAIL_USER;
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.GMAIL_USER;
     if (adminEmail) {
         try {
-            const u = populated!.user as { name?: string; email?: string };
-            const d = populated!.desk as { deskNumber?: string };
+            const u = populated!.user as { name?: string; email?: string } | null;
+            const d = populated!.desk as { deskNumber?: string } | null;
+            const userName = (u && typeof u === "object" ? u.name : null) ?? "User";
+            const userEmail = (u && typeof u === "object" ? u.email : null) ?? "";
+            const deskNumber = (d && typeof d === "object" ? d.deskNumber : null) ?? "—";
             await sendUserCancelledToAdminEmail(
                 adminEmail,
-                u?.name ?? "User",
-                u?.email ?? "",
-                d?.deskNumber ?? "—",
+                userName,
+                userEmail,
+                deskNumber,
                 populated!.date,
-                reason ?? ""
+                typeof reason === "string" ? reason : ""
             );
+            console.log(`[Email] User-cancelled notification sent to admin (${adminEmail})`);
         } catch (e) {
             console.error("Failed to send user-cancelled email to admin:", e);
         }

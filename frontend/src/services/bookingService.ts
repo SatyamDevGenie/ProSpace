@@ -20,8 +20,8 @@ export const bookingService = {
     return res.data;
   },
   cancel: async (id: string, reason?: string): Promise<IBooking> => {
-    const res = await api.delete<IBooking>(`/bookings/me/${id}`, {
-      data: { reason: reason ?? "" },
+    const res = await api.patch<IBooking>(`/bookings/me/${id}/cancel`, {
+      reason: reason ?? "",
     });
     return res.data;
   },

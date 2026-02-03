@@ -19,7 +19,7 @@ const router = Router();
 router.post("/create", protect, createBooking);
 router.get("/me/history", protect, myBookingHistory);
 router.patch("/me/:id", protect, updateMyBooking);
-router.delete("/me/:id", protect, cancelMyBooking);
+router.patch("/me/:id/cancel", protect, cancelMyBooking);
 
 router.post("/admin/create", protect, isAdmin, adminCreateBooking);
 router.get("/admin/all", protect, isAdmin, adminAllBookings);
